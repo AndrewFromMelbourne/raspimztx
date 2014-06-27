@@ -197,10 +197,10 @@ void
 printUsage(
     const char *name)
 {
-	printf("usage: %s --file <file.jpg> ... options\n", name);
-	printf("    --help - print this help message\n");
-	printf("    --portrait - display in portrait orientation\n");
-	printf("\n");
+    printf("usage: %s --file <file.jpg> ... options\n", name);
+    printf("    --help - print this help message\n");
+    printf("    --portrait - display in portrait orientation\n");
+    printf("\n");
 }
 
 //-------------------------------------------------------------------------
@@ -209,9 +209,9 @@ int
 main(int argc, char *argv[])
 {
     program = basename(argv[0]);
-	char *filename = NULL;
+    char *filename = NULL;
 
-	bool rotate = true;
+    bool rotate = true;
 
     //---------------------------------------------------------------------
 
@@ -241,13 +241,13 @@ main(int argc, char *argv[])
             printUsage(program);
             exit(EXIT_SUCCESS);
 
-			break;
+            break;
 
         case 'p':
 
-			rotate = false;
+            rotate = false;
 
-			break;
+            break;
 
         default:
 
@@ -262,7 +262,7 @@ main(int argc, char *argv[])
 
     if (filename == NULL)
     {
-		printUsage(program);
+        printUsage(program);
         exit(EXIT_FAILURE);
     }
 
@@ -295,7 +295,7 @@ main(int argc, char *argv[])
 
     if ((image.width != lcd.width) || (image.height != lcd.height))
     {
-		NEAREST_NEIGHBOUR_T nn;
+        NEAREST_NEIGHBOUR_T nn;
 
         initNearestNeighbour(&nn,
                              lcd.width,
@@ -304,28 +304,28 @@ main(int argc, char *argv[])
                              image.height,
                              true);
 
-		IMAGE_T resized;
-		initImage(&resized,
-				  nn.destinationWidth,
-				  nn.destinationHeight,
-				  false);
+        IMAGE_T resized;
+        initImage(&resized,
+                  nn.destinationWidth,
+                  nn.destinationHeight,
+                  false);
 
-		resizeNearestNeighbour(&nn,
-							   resized.buffer,
-							   resized.width * sizeof(uint16_t),
-							   image.buffer,
-							   image.width * sizeof(uint16_t));
+        resizeNearestNeighbour(&nn,
+                               resized.buffer,
+                               resized.width * sizeof(uint16_t),
+                               image.buffer,
+                               image.width * sizeof(uint16_t));
 
-		putImageLcd(&lcd,
-					(lcd.width - resized.width) / 2,
-					(lcd.height - resized.height) / 2,
-					&resized);
+        putImageLcd(&lcd,
+                    (lcd.width - resized.width) / 2,
+                    (lcd.height - resized.height) / 2,
+                    &resized);
 
-		destroyImage(&resized);
+        destroyImage(&resized);
     }
-	else
-	{
-		putImageLcd(&lcd, 0, 0, &image);
+    else
+    {
+        putImageLcd(&lcd, 0, 0, &image);
     }
 
     destroyImage(&image);

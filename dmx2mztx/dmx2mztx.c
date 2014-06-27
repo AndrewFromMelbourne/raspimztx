@@ -69,8 +69,8 @@ printUsage(
     fprintf(stderr, "    --daemon - start in the background as a daemon\n");
     fprintf(stderr, "    --fps <fps> - set desired frames per second");
     fprintf(stderr,
-			" (default %d frames per second)\n",
-			1000000 / DEFAULT_FRAME_DURATION);
+            " (default %d frames per second)\n",
+            1000000 / DEFAULT_FRAME_DURATION);
     fprintf(stderr, "    --help - print usage and exit\n");
     fprintf(stderr, "\n");
 }
@@ -163,7 +163,7 @@ main(int argc, char *argv[])
     //---------------------------------------------------------------------
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
-	{
+    {
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");

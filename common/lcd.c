@@ -287,10 +287,10 @@ void
 closeLcd(
     LCD_T *lcd)
 {
-	// Turn diplay off
+    // Turn diplay off
     writeCommand(0x0007, 0x0000);
 
-	// Turn backlight off
+    // Turn backlight off
     backlightLcd(1024);
     bcm2835_close();
 }

@@ -49,8 +49,8 @@ initNearestNeighbour(
     nn->xRatio = (((int32_t)sWidth << 16) / width) + 1;
     nn->yRatio = (((int32_t)sHeight << 16) / height) + 1;
 
-	nn->destinationWidth = width;
-	nn->destinationHeight = height;
+    nn->destinationWidth = width;
+    nn->destinationHeight = height;
 
     if (keepAspectRatio)
     {

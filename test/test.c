@@ -96,7 +96,7 @@ void test(
     struct timeval end_time;
     struct timeval diff;
 
-	printf("testing LCD %dx%d\n", lcd.width, lcd.height);
+    printf("testing LCD %dx%d\n", lcd.width, lcd.height);
 
     // red
     gettimeofday(&start_time, NULL);
@@ -225,7 +225,7 @@ void test(
            (int)diff.tv_usec);
 
     sleep(1);
-	printf("\n");
+    printf("\n");
 
     closeLcd(&lcd);
 }
@@ -270,8 +270,8 @@ main(void)
     }
 
     pwm();
-	test(true);
-	test(false);
+    test(true);
+    test(false);
 
     return 0 ;
 }
