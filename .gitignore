@@ -1,0 +1,18 @@
+# object files
+
+*.o
+
+# code
+
+core
+
+# programs
+
+dmx2mztx/dmx2mztx
+fb2mztx/fb2mztx
+jpg2mztx/jpg2mztx
+test/test
+
+# other directories
+
+*_/
