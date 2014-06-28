@@ -292,6 +292,7 @@ closeLcd(
 
     // Turn backlight off
     backlightLcd(1024);
+    bcm2835_spi_end();
     bcm2835_close();
 }
 
