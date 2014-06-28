@@ -172,6 +172,38 @@ main(int argc, char *argv[])
 
     //---------------------------------------------------------------------
 
+    bcm_host_init();
+
+    //---------------------------------------------------------------------
+    //
+    // Calling vc_dispmanx_snapshot() fails when the display is rotate
+    // either 90 or 270 degrees. It sometimes causes the program to hang.
+    // check the config to make sure the screen is not rotated.
+    //
+
+    char response[1024];
+    int display_rotate = 0;
+
+    if (vc_gencmd(response, sizeof(response), "get_config int") == 0)
+    {
+        vc_gencmd_number_property(response,
+                                  "display_rotate",
+                                  &display_rotate);
+    }
+
+    // only need to check low bit of display_rotate (value of 1 or 3).
+
+    if (display_rotate & 1)
+    {
+        messageLog(isDaemon,
+                   program,
+                   LOG_ERR,
+                   "cannot copy rotated display");
+        exit(EXIT_FAILURE);
+    }
+
+    //---------------------------------------------------------------------
+
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
@@ -217,10 +249,6 @@ main(int argc, char *argv[])
                    "unable to allocated image buffer");
         exit(EXIT_FAILURE);
     }
-
-    //---------------------------------------------------------------------
-
-    bcm_host_init();
 
     //---------------------------------------------------------------------
 
