@@ -1,6 +1,7 @@
 TARGETS=	dmx2mztx \
 			fb2mztx \
 			jpg2mztx \
+			png2mztx \
 			test
 
 default :all
