@@ -195,6 +195,7 @@ main(int argc, char *argv[])
     int c = 0;
     while (c != 27)
     {
+        usleep(100000);
         keyPressed(&c);
     }
 
