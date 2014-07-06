@@ -211,7 +211,7 @@ main(int argc, char *argv[])
     program = basename(argv[0]);
     char *filename = NULL;
 
-    bool rotate = true;
+    uint16_t rotate = 90;
 
     //---------------------------------------------------------------------
 
@@ -245,7 +245,7 @@ main(int argc, char *argv[])
 
         case 'p':
 
-            rotate = false;
+            rotate = 0;
 
             break;
 

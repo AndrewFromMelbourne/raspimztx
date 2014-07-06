@@ -48,7 +48,7 @@ typedef struct
     uint16_t yPosition;
     uint16_t width;
     uint16_t height;
-    bool rotated;
+    uint16_t rotate;
 } LCD_T;
 
 //-------------------------------------------------------------------------
@@ -62,7 +62,7 @@ packRGB(
 bool
 initLcd(
     LCD_T *lcd,
-    bool rotate);
+    uint16_t rotate);
 
 void
 closeLcd(

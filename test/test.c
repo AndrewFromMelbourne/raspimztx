@@ -81,8 +81,8 @@ triangleImage(
 
 //-------------------------------------------------------------------------
 
-void test(
-    bool rotate)
+void testClearLcd(
+    uint16_t rotate)
 {
     LCD_T lcd;
 
@@ -96,7 +96,10 @@ void test(
     struct timeval end_time;
     struct timeval diff;
 
-    printf("testing LCD %dx%d\n", lcd.width, lcd.height);
+    printf("testing clearLcd LCD %dx%d - rotation = %d\n",
+           lcd.width,
+           lcd.height,
+           rotate);
 
     // red
     gettimeofday(&start_time, NULL);
@@ -167,24 +170,97 @@ void test(
            (int)diff.tv_sec,
            (int)diff.tv_usec);
     sleep(1);
+    printf("\n");
 
-    // dark grey
+    closeLcd(&lcd);
+}
+
+//-------------------------------------------------------------------------
+
+void testFilledBox(
+    uint16_t rotate)
+{
+    LCD_T lcd;
+
+    if (initLcd(&lcd, rotate) == false)
+    {
+        fprintf(stderr, "LCD initialization failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    struct timeval start_time;
+    struct timeval end_time;
+    struct timeval diff;
+
+    printf("testing filledBoxLcd LCD %dx%d - rotation = %d\n",
+           lcd.width,
+           lcd.height,
+           rotate);
+
+    // white
     gettimeofday(&start_time, NULL);
-    filledBoxLcd(&lcd, 0, 0, lcd.width, lcd.height, packRGB(8, 8, 8));
+    filledBoxLcd(&lcd, 0, 0, lcd.width, lcd.height, packRGB(255, 255, 255));
     gettimeofday(&end_time, NULL);
     timersub(&end_time, &start_time, &diff);
     printf("    filledBoxLcd took - %d.%06d seconds\n",
            (int)diff.tv_sec,
            (int)diff.tv_usec);
+    sleep(1);
 
-    // black box
+    // four filled boxes
     filledBoxLcd(&lcd,
-                 (lcd.width - 148) / 2,
-                 (lcd.height - 148) / 2,
-                 148,
-                 148,
-                 packRGB(0, 0, 0));
+                 0,
+                 0,
+                 lcd.width / 2,
+                 lcd.height / 2,
+                 packRGB(255, 0, 0));
+    filledBoxLcd(&lcd,
+                 lcd.width / 2,
+                 0,
+                 lcd.width / 2,
+                 lcd.height / 2,
+                 packRGB(0, 255, 0));
+    filledBoxLcd(&lcd,
+                 0,
+                 lcd.height / 2,
+                 lcd.width / 2,
+                 lcd.height / 2,
+                 packRGB(0, 0, 255));
+    filledBoxLcd(&lcd,
+                 lcd.width / 2,
+                 lcd.height / 2,
+                 lcd.width / 2,
+                 lcd.height / 2,
+                 packRGB(127, 127, 127));
+    sleep(1);
+    printf("\n");
 
+    closeLcd(&lcd);
+}
+
+//-------------------------------------------------------------------------
+
+void testSetPixel(
+    uint16_t rotate)
+{
+    LCD_T lcd;
+
+    if (initLcd(&lcd, rotate) == false)
+    {
+        fprintf(stderr, "LCD initialization failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    struct timeval start_time;
+    struct timeval end_time;
+    struct timeval diff;
+
+    printf("testing setPixelLcd LCD %dx%d - rotation = %d\n",
+           lcd.width,
+           lcd.height,
+           rotate);
+
+    clearLcd(&lcd, packRGB(0, 0, 0));
     gettimeofday(&start_time, NULL);
     triangle(&lcd);
     gettimeofday(&end_time, NULL);
@@ -194,14 +270,34 @@ void test(
            (int)diff.tv_usec);
 
     sleep(1);
+    printf("\n");
 
-    // black box
-    filledBoxLcd(&lcd,
-                 (lcd.width - 148) / 2,
-                 (lcd.height - 148) / 2,
-                 148,
-                 148,
-                 packRGB(0, 0, 0));
+    closeLcd(&lcd);
+}
+
+//-------------------------------------------------------------------------
+
+void testImage(
+    uint16_t rotate)
+{
+    LCD_T lcd;
+
+    if (initLcd(&lcd, rotate) == false)
+    {
+        fprintf(stderr, "LCD initialization failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    struct timeval start_time;
+    struct timeval end_time;
+    struct timeval diff;
+
+    printf("testing image LCD %dx%d - rotation = %d\n",
+           lcd.width,
+           lcd.height,
+           rotate);
+
+    clearLcd(&lcd, packRGB(0, 0, 0));
 
     int16_t xoffset = (lcd.width - 128) / 2;
     int16_t yoffset = (lcd.height - 128) / 2;
@@ -232,11 +328,11 @@ void test(
 
 //-------------------------------------------------------------------------
 
-void pwm()
+void testPwm()
 {
     LCD_T lcd;
 
-    if (initLcd(&lcd, true) == false)
+    if (initLcd(&lcd, 90) == false)
     {
         fprintf(stderr, "LCD initialization failed\n");
         exit(EXIT_FAILURE);
@@ -269,9 +365,13 @@ main(void)
         exit(EXIT_FAILURE);
     }
 
-    pwm();
-    test(true);
-    test(false);
+    uint16_t angle = 0;
+    for (angle = 0 ; angle < 360 ; angle += 90) testClearLcd(angle);
+    for (angle = 0 ; angle < 360 ; angle += 90) testFilledBox(angle);
+    for (angle = 0 ; angle < 360 ; angle += 90) testSetPixel(angle);
+    for (angle = 0 ; angle < 360 ; angle += 90) testImage(angle);
+
+    testPwm();
 
     return 0 ;
 }

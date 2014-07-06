@@ -191,7 +191,7 @@ main(int argc, char *argv[])
 
     LCD_T lcd;
 
-    if (initLcd(&lcd, true) == false)
+    if (initLcd(&lcd, 90) == false)
     {
         messageLog(isDaemon,
                    program,

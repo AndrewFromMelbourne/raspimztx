@@ -106,27 +106,11 @@ packRGB(
 bool
 initLcd(
     LCD_T *lcd,
-    bool rotate)
+    uint16_t rotate)
 {
-    if (rotate)
+    switch (rotate)
     {
-        lcd->rotated = true;
-
-        lcd->xStart = 0x0212;
-        lcd->yStart = 0x0210;
-
-        lcd->xEnd = 0x0213;
-        lcd->yEnd = 0x0211;
-
-        lcd->xPosition = 0x0201;
-        lcd->yPosition = 0x0200;
-
-        lcd->width = 320;
-        lcd->height = 240;
-    }
-    else
-    {
-        lcd->rotated = false;
+    case 0:
 
         lcd->xStart = 0x0210;
         lcd->yStart = 0x0212;
@@ -139,7 +123,65 @@ initLcd(
 
         lcd->width = 240;
         lcd->height = 320;
+
+        break;
+
+    case 90:
+
+        lcd->xStart = 0x0212;
+        lcd->yStart = 0x0210;
+
+        lcd->xEnd = 0x0213;
+        lcd->yEnd = 0x0211;
+
+        lcd->xPosition = 0x0201;
+        lcd->yPosition = 0x0200;
+
+        lcd->width = 320;
+        lcd->height = 240;
+
+        break;
+
+    case 180:
+
+        lcd->xStart = 0x0210;
+        lcd->yStart = 0x0212;
+
+        lcd->xEnd = 0x0211;
+        lcd->yEnd = 0x0213;
+
+        lcd->xPosition = 0x0200;
+        lcd->yPosition = 0x0201;
+
+        lcd->width = 240;
+        lcd->height = 320;
+
+        break;
+
+    case 270:
+
+        lcd->xStart = 0x0212;
+        lcd->yStart = 0x0210;
+
+        lcd->xEnd = 0x0213;
+        lcd->yEnd = 0x0211;
+
+        lcd->xPosition = 0x0201;
+        lcd->yPosition = 0x0200;
+
+        lcd->width = 320;
+        lcd->height = 240;
+
+        break;
+
+    default:
+
+        return false;
+
+        break;
     }
+
+    lcd->rotate = rotate;
 
     //---------------------------------------------------------------------
 
@@ -197,25 +239,60 @@ initLcd(
 
     delay(8);
     
+    switch (lcd->rotate)
+    {
+    case 0:
 
-    if (rotate)
-    {
-        writeCommand(0x0001, 0x0000);
-    }
-    else
-    {
         writeCommand(0x0001, 0x0100);
+
+        break;
+
+    case 90:
+
+        writeCommand(0x0001, 0x0000);
+
+        break;
+
+    case 180:
+
+        writeCommand(0x0001, 0x0100);
+
+        break;
+
+    case 270:
+
+        writeCommand(0x0001, 0x0000);
+
+        break;
     }
 
     writeCommand(0x0002, 0x0000);
 
-    if (rotate)
+    switch (lcd->rotate)
     {
-        writeCommand(0x0003, 0x12B8);
-    }
-    else
-    {
+    case 0:
+
         writeCommand(0x0003, 0x12B0);
+
+        break;
+
+    case 90:
+
+        writeCommand(0x0003, 0x12B8);
+
+        break;
+
+    case 180:
+
+        writeCommand(0x0003, 0x1280);
+
+        break;
+
+    case 270:
+
+        writeCommand(0x0003, 0x1288);
+
+        break;
     }
 
     writeCommand(0x0006, 0x0000);
@@ -383,11 +460,27 @@ filledBoxLcd(
         height = lcd->height - y;
     }
 
-    writeCommand(lcd->xStart, x);
-    writeCommand(lcd->yStart, y);
+    if ((lcd->rotate == 180) || (lcd->rotate == 270))
+    {
+        writeCommand(lcd->xStart, lcd->width - x - width);
+        writeCommand(lcd->xEnd, lcd->width - 1 - x);
+    }
+    else
+    {
+        writeCommand(lcd->xStart, x);
+        writeCommand(lcd->xEnd, x + width - 1);
+    }
 
-    writeCommand(lcd->xEnd, x + width - 1);
-    writeCommand(lcd->yEnd, y + height - 1);
+    if ((lcd->rotate == 180) || (lcd->rotate == 270))
+    {
+        writeCommand(lcd->yStart, lcd->height - y - height);
+        writeCommand(lcd->yEnd, lcd->height - 1 - y);
+    }
+    else
+    {
+        writeCommand(lcd->yStart, y);
+        writeCommand(lcd->yEnd, y + height - 1);
+    }
     
     writeCommand(lcd->xPosition, 0x0000);
     writeCommand(lcd->yPosition, 0x0000);
@@ -436,13 +529,31 @@ setPixelLcd(
         return false;
     }
 
-    writeCommand(lcd->xStart, x);
-    writeCommand(lcd->yStart, y);
-    writeCommand(lcd->xEnd, x);
-    writeCommand(lcd->yEnd, y);
+    if ((lcd->rotate == 180) || (lcd->rotate == 270))
+    {
+        writeCommand(lcd->xStart, lcd->width - 1 - x);
+        writeCommand(lcd->xEnd, lcd->width - 1 - x);
+        writeCommand(lcd->xPosition, lcd->width - 1 - x);
+    }
+    else
+    {
+        writeCommand(lcd->xStart, x);
+        writeCommand(lcd->xEnd, x);
+        writeCommand(lcd->xPosition, x);
+    }
 
-    writeCommand(lcd->xPosition, x);
-    writeCommand(lcd->yPosition, y);
+    if ((lcd->rotate == 180) || (lcd->rotate == 270))
+    {
+        writeCommand(lcd->yStart, lcd->height - 1 - y);
+        writeCommand(lcd->yEnd, lcd->height - 1 - y);
+        writeCommand(lcd->yPosition, lcd->height - 1 - y);
+    }
+    else
+    {
+        writeCommand(lcd->yStart, y);
+        writeCommand(lcd->yEnd, y);
+        writeCommand(lcd->yPosition, y);
+    }
 
     writeCommand(0x202, rgb);
 
@@ -544,9 +655,9 @@ putImageLcd(
     }
 
     writeCommand(lcd->xStart, x);
-    writeCommand(lcd->yStart, y);
-
     writeCommand(lcd->xEnd, x + image->width - 1);
+
+    writeCommand(lcd->yStart, y);
     writeCommand(lcd->yEnd, y + image->height - 1);
     
     writeCommand(lcd->xPosition, 0x0000);
