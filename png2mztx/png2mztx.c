@@ -65,7 +65,9 @@ printUsage(
 //-------------------------------------------------------------------------
 
 int
-main(int argc, char *argv[])
+main(
+    int argc,
+    char *argv[])
 {
     program = basename(argv[0]);
     char *filename = NULL;
