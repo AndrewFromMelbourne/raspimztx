@@ -59,6 +59,42 @@ getPixelRGB565(
 
 //-------------------------------------------------------------------------
 
+void
+setRGB(
+    RGB8_T *rgb,
+    uint8_t red,
+    uint8_t green,
+    uint8_t blue)
+{
+    rgb->red = red;
+    rgb->green = green;
+    rgb->blue = blue;
+}
+
+//-------------------------------------------------------------------------
+
+void
+blendRGB(
+    uint8_t alpha,
+    const RGB8_T *a,
+    const RGB8_T *b,
+    RGB8_T *result)
+{
+    result->red = (((int16_t)(a->red) * alpha)
+                + ((int16_t)(b->red) * (255 - alpha)))
+                / 255;
+
+    result->green = (((int16_t)(a->green) * alpha)
+                  + ((int16_t)(b->green) * (255 - alpha)))
+                  / 255;
+
+    result->blue = (((int16_t)(a->blue) * alpha)
+                 + ((int16_t)(b->blue) * (255 - alpha)))
+                 / 255;
+}
+
+//-------------------------------------------------------------------------
+
 bool initImage(
     IMAGE_T *image,
     int16_t width,

@@ -58,6 +58,22 @@ struct IMAGE_T_
 
 //-------------------------------------------------------------------------
 
+void
+setRGB(
+    RGB8_T *rgb,
+    uint8_t red,
+    uint8_t green,
+    uint8_t blue);
+
+void
+blendRGB(
+    uint8_t alpha,
+    const RGB8_T *a,
+    const RGB8_T *b,
+    RGB8_T *result);
+
+//-------------------------------------------------------------------------
+
 bool
 initImage(
     IMAGE_T *image,
