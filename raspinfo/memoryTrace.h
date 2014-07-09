@@ -1,9 +1,8 @@
-
 //-------------------------------------------------------------------------
 //
 // The MIT License (MIT)
 //
-// Copyright (c) 2013 Andrew Duncan
+// Copyright (c) 2014 Andrew Duncan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -26,46 +25,59 @@
 //
 //-------------------------------------------------------------------------
 
-#ifndef FONT_H
-#define FONT_H
+#ifndef MEMORY_TRACE_H
+#define MEMORY_TRACE_H
 
 //-------------------------------------------------------------------------
 
 #include <stdint.h>
 
 #include "image.h"
-
-//-------------------------------------------------------------------------
-
-#define FONT_WIDTH 8
-#define FONT_HEIGHT 16
+#include "lcd.h"
 
 //-------------------------------------------------------------------------
 
 typedef struct
 {
-    int16_t x;
-    int16_t y;
-} FONT_POSITION_T;
+    int16_t traceHeight;
+    int16_t yPosition;
+    uint16_t values;
+    int8_t *used;
+    int8_t *buffers;
+    int8_t *cached;
+    int8_t *time;
+    IMAGE_T image;
+    RGB8_T usedColour;
+    RGB8_T usedGridColour;
+    RGB8_T buffersColour;
+    RGB8_T buffersGridColour;
+    RGB8_T cachedColour;
+    RGB8_T cachedGridColour;
+    RGB8_T foreground;
+    RGB8_T background;
+    RGB8_T gridColour;
+} MEMORY_TRACE_T;
 
 //-------------------------------------------------------------------------
 
-FONT_POSITION_T
-drawCharRGB(
-    int16_t x,
-    int16_t y,
-    uint8_t c,
-    const RGB8_T *rgb,
-    IMAGE_T *image);
+void
+initMemoryTrace(
+    int16_t width,
+    int16_t traceHeight,
+    int16_t yPosition,
+    MEMORY_TRACE_T *trace);
 
-FONT_POSITION_T
-drawStringRGB(
-    int16_t x,
-    int16_t y,
-    const char *string,
-    const RGB8_T *rgb,
-    IMAGE_T *image);
+void
+destroyMemoryTrace(
+    MEMORY_TRACE_T *trace);
+
+void
+graphMemoryUsage(
+    time_t now,
+    LCD_T *lcd,
+    MEMORY_TRACE_T *trace);
 
 //-------------------------------------------------------------------------
 
 #endif
+

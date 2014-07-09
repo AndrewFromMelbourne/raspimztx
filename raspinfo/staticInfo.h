@@ -1,9 +1,8 @@
-
 //-------------------------------------------------------------------------
 //
 // The MIT License (MIT)
 //
-// Copyright (c) 2013 Andrew Duncan
+// Copyright (c) 2014 Andrew Duncan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -26,46 +25,42 @@
 //
 //-------------------------------------------------------------------------
 
-#ifndef FONT_H
-#define FONT_H
+#ifndef STATIC_INFO_H
+#define STATIC_INFO_H
 
 //-------------------------------------------------------------------------
 
 #include <stdint.h>
 
 #include "image.h"
-
-//-------------------------------------------------------------------------
-
-#define FONT_WIDTH 8
-#define FONT_HEIGHT 16
+#include "lcd.h"
 
 //-------------------------------------------------------------------------
 
 typedef struct
 {
-    int16_t x;
-    int16_t y;
-} FONT_POSITION_T;
+    int16_t yPosition;
+    IMAGE_T image;
+} STATIC_INFO_T;
 
 //-------------------------------------------------------------------------
 
-FONT_POSITION_T
-drawCharRGB(
-    int16_t x,
-    int16_t y,
-    uint8_t c,
-    const RGB8_T *rgb,
-    IMAGE_T *image);
+void
+initStaticInfo(
+    int16_t width,
+    int16_t yPosition,
+    STATIC_INFO_T *info);
 
-FONT_POSITION_T
-drawStringRGB(
-    int16_t x,
-    int16_t y,
-    const char *string,
-    const RGB8_T *rgb,
-    IMAGE_T *image);
+void
+destroyStaticInfo(
+    STATIC_INFO_T *info);
+
+void
+showStaticInfo(
+    LCD_T *lcd,
+    STATIC_INFO_T *info);
 
 //-------------------------------------------------------------------------
 
 #endif
+
