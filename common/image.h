@@ -53,6 +53,7 @@ struct IMAGE_T_
     int16_t height;
     int32_t size;
     uint16_t *buffer;
+    void (*clearImage)(IMAGE_T*, const RGB8_T*);
     void (*setPixel)(IMAGE_T*, int16_t, int16_t, const RGB8_T*);
 };
 

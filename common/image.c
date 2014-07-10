@@ -37,6 +37,16 @@
 //-------------------------------------------------------------------------
 
 void
+clearImageRGB565(
+    IMAGE_T *image,
+    const RGB8_T *rgb);
+
+void
+clearImageDitheredRGB565(
+    IMAGE_T *image,
+    const RGB8_T *rgb);
+
+void
 setPixelRGB565(
     IMAGE_T *image,
     int16_t x,
@@ -103,10 +113,12 @@ bool initImage(
 {
     if (dither)
     {
+        image->clearImage = clearImageDitheredRGB565;
         image->setPixel = setPixelDitheredRGB565;
     }
     else
     {
+        image->clearImage = clearImageRGB565;
         image->setPixel = setPixelRGB565;
     }
 
@@ -132,16 +144,49 @@ clearImageRGB(
     IMAGE_T *image,
     const RGB8_T *rgb)
 {
-    if (image->setPixel != NULL)
+    if (image->clearImage != NULL)
     {
-        int j;
-        for (j = 0 ; j < image->height ; j++)
+        image->clearImage(image, rgb);
+    }
+}
+
+//-------------------------------------------------------------------------
+
+void
+clearImageRGB565(
+    IMAGE_T *image,
+    const RGB8_T *rgb)
+{
+    uint8_t r5 = rgb->red >> 3;
+    uint8_t g6 = rgb->green >> 2;
+    uint8_t b5 = rgb->blue >> 3;
+
+    uint16_t pixel = (r5 << 11) | (g6 << 5) | b5;
+
+    int length = image->width * image->height;
+    uint16_t *buffer = image->buffer;
+
+    int i = 0;
+    for (i = 0 ; i < length ; i++)
+    {
+        *buffer++ = pixel;
+    }
+}
+
+//-------------------------------------------------------------------------
+
+void
+clearImageDitheredRGB565(
+    IMAGE_T *image,
+    const RGB8_T *rgb)
+{
+    int j;
+    for (j = 0 ; j < image->height ; j++)
+    {
+        int i;
+        for (i = 0 ; i < image->width ; i++)
         {
-            int i;
-            for (i = 0 ; i < image->width ; i++)
-            {
-                image->setPixel(image, i, j, rgb);
-            }
+            setPixelDitheredRGB565(image, i, j, rgb);
         }
     }
 }
