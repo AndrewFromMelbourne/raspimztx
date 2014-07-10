@@ -133,7 +133,7 @@ initStaticInfo(
 
     IMAGE_T *image = &(info->image);
 
-    if (initImage(image, width, FONT_HEIGHT + 4, true) == false)
+    if (initImage(image, width, FONT_HEIGHT + 4, false) == false)
     {
         exit(EXIT_FAILURE);
     }

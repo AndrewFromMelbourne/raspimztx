@@ -77,7 +77,7 @@ getTemperature(
         sscanf(response, "temp=%lf'C", &temperature);
     }
 
-    snprintf(buffer, bufferSize, "%3.1f", temperature);
+    snprintf(buffer, bufferSize, "%2.0f", temperature);
 }
 
 //-------------------------------------------------------------------------
@@ -94,7 +94,7 @@ initDynamicInfo(
 
     IMAGE_T *image = &(info->image);
 
-    if (initImage(image, width, FONT_HEIGHT + 4, true) == false)
+    if (initImage(image, width, FONT_HEIGHT + 4, false) == false)
     {
         exit(EXIT_FAILURE);
     }
