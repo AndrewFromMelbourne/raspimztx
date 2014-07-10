@@ -82,7 +82,7 @@ getTemperature(
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initDynamicInfo(
     int16_t width,
     int16_t yPosition,
@@ -102,6 +102,10 @@ initDynamicInfo(
     setRGB(&(info->heading), 255, 255, 0);
     setRGB(&(info->foreground), 255, 255, 255);
     setRGB(&(info->background), 0, 0, 0);
+
+    //---------------------------------------------------------------------
+
+    return yPosition + image->height;
 }
 
 //-------------------------------------------------------------------------
@@ -155,9 +159,11 @@ showDynamicInfo(
                              &(info->foreground),
                              image);
 
+    uint8_t degreeSymbol = 0xF8;
+
     position = drawCharRGB(position.x,
                            position.y,
-                           0xF8,
+                           degreeSymbol,
                            &(info->foreground),
                            image);
 

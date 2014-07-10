@@ -48,7 +48,7 @@ typedef struct
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initDynamicInfo(
     int16_t width,
     int16_t yPosition,

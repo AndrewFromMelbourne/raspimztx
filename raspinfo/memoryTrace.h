@@ -60,7 +60,7 @@ typedef struct
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initMemoryTrace(
     int16_t width,
     int16_t traceHeight,

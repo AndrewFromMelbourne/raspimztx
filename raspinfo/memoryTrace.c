@@ -100,7 +100,7 @@ readMemoryStats(
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initMemoryTrace(
     int16_t width,
     int16_t traceHeight,
@@ -179,6 +179,8 @@ initMemoryTrace(
 
     clearImageRGB(image, &(trace->background));
 
+    uint8_t smallSquare = 0xFE;
+
     FONT_POSITION_T position = 
         drawStringRGB(0,
                       image->height - 2 - FONT_HEIGHT,
@@ -194,7 +196,7 @@ initMemoryTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->usedColour),
                            image);
 
@@ -206,7 +208,7 @@ initMemoryTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->buffersColour),
                            image);
 
@@ -218,7 +220,7 @@ initMemoryTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->cachedColour),
                            image);
 
@@ -236,6 +238,10 @@ initMemoryTrace(
             setPixelRGB(image, i, j, &(trace->gridColour));
         }
     }
+
+    //---------------------------------------------------------------------
+
+    return yPosition + height;
 }
 
 //-------------------------------------------------------------------------

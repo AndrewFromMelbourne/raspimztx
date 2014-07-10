@@ -78,7 +78,7 @@ typedef struct
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initCpuTrace(
     int16_t width,
     int16_t traceHeight,

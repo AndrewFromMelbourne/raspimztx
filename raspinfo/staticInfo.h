@@ -45,7 +45,7 @@ typedef struct
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initStaticInfo(
     int16_t width,
     int16_t yPosition,

@@ -193,24 +193,26 @@ main(
 
     //---------------------------------------------------------------------
 
+    int16_t top = 0;
+
     STATIC_INFO_T staticInfo;
-    initStaticInfo(lcd.width, 0, &staticInfo);
+    top = initStaticInfo(lcd.width, top, &staticInfo);
     showStaticInfo(&lcd, &staticInfo);
 
     //---------------------------------------------------------------------
 
     DYNAMIC_INFO_T dynamicInfo;
-    initDynamicInfo(lcd.width, 20, &dynamicInfo);
+    top = initDynamicInfo(lcd.width, top, &dynamicInfo);
 
     //---------------------------------------------------------------------
 
     CPU_TRACE_T cpuTrace;
-    initCpuTrace(lcd.width, 80, 40, &cpuTrace);
+    top = initCpuTrace(lcd.width, 80, top, &cpuTrace);
 
     //---------------------------------------------------------------------
 
     MEMORY_TRACE_T memoryTrace;
-    initMemoryTrace(lcd.width, 80, 140, &memoryTrace);
+    top = initMemoryTrace(lcd.width, 80, top, &memoryTrace);
 
     //---------------------------------------------------------------------
 

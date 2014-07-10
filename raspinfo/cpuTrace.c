@@ -90,7 +90,7 @@ diffCpuStats(
 
 //-------------------------------------------------------------------------
 
-void
+int16_t
 initCpuTrace(
     int16_t width,
     int16_t traceHeight,
@@ -169,6 +169,8 @@ initCpuTrace(
 
     clearImageRGB(image, &(trace->background));
 
+    uint8_t smallSquare = 0xFE;
+
     FONT_POSITION_T position = 
         drawStringRGB(0,
                       image->height - 2 - FONT_HEIGHT,
@@ -184,7 +186,7 @@ initCpuTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->userColour),
                            image);
 
@@ -196,7 +198,7 @@ initCpuTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->niceColour),
                            image);
 
@@ -208,7 +210,7 @@ initCpuTrace(
 
     position = drawCharRGB(position.x,
                            position.y,
-                           0xFE,
+                           smallSquare,
                            &(trace->systemColour),
                            image);
 
@@ -231,6 +233,10 @@ initCpuTrace(
     //---------------------------------------------------------------------
 
     readCpuStats(&(trace->currentStats));
+
+    //---------------------------------------------------------------------
+
+    return yPosition + height;
 }
 
 //-------------------------------------------------------------------------
