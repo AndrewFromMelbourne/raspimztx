@@ -52,6 +52,9 @@ triangleImage(
     IMAGE_T image;
     initImage(&image, 128, 128, dither);
 
+    RGB8_T white = { 255, 255, 255 };
+    clearImageRGB(&image, &white);
+
     int16_t y;
     for (y = 0 ; y < 128 ; y++)
     {
