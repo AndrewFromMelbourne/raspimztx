@@ -240,6 +240,8 @@ main(
     destroyCpuTrace(&cpuTrace);
     destroyMemoryTrace(&memoryTrace);
 
+    closeLcd(&lcd);
+
     //---------------------------------------------------------------------
 
     messageLog(isDaemon, program, LOG_INFO, "exiting");
