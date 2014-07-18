@@ -207,7 +207,7 @@ initLcd(
 
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);
-    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_2);
+    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_4);
 
     bcm2835_gpio_clr(RPI_GPIO_P1_12);
 
