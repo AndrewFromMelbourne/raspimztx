@@ -39,6 +39,8 @@
 #include <syslog.h>
 #include <unistd.h>
 
+#include <bsd/libutil.h>
+
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -62,14 +64,16 @@ volatile bool run = true;
 
 void
 printUsage(
+    FILE *fp,
     const char *name)
 {
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Usage: %s <options>\n", name);
-    fprintf(stderr, "\n");
-    fprintf(stderr, "    --daemon - start in the background as a daemon\n");
-    fprintf(stderr, "    --help - print usage and exit\n");
-    fprintf(stderr, "\n");
+    fprintf(fp, "\n");
+    fprintf(fp, "Usage: %s <options>\n", name);
+    fprintf(fp, "\n");
+    fprintf(fp, "    --daemon - start in the background as a daemon\n");
+    fprintf(fp, "    --help - print usage and exit\n");
+    fprintf(fp, "    --pidfile <pidfile> - create and lock PID file (if being run as a daemon)\n");
+    fprintf(fp, "\n");
 }
 
 //-------------------------------------------------------------------------
@@ -96,16 +100,17 @@ main(
     char *argv[])
 {
     char *program = basename(argv[0]);
-
+    char *pidfile = NULL;
     bool isDaemon =  false;
 
     //---------------------------------------------------------------------
 
-    static const char *sopts = "dh";
+    static const char *sopts = "dhp:";
     static struct option lopts[] = 
     {
         { "daemon", no_argument, NULL, 'd' },
         { "help", no_argument, NULL, 'h' },
+        { "pidfile", required_argument, NULL, 'p' },
         { NULL, no_argument, NULL, 0 }
     };
 
@@ -118,21 +123,26 @@ main(
         case 'd':
 
             isDaemon = true;
+
             break;
 
         case 'h':
+
+            printUsage(stdout, program);
+            exit(EXIT_SUCCESS);
+
+            break;
+
+        case 'p':
+
+            pidfile = optarg;
+
+            break;
+
         default:
 
-            printUsage(program);
-
-            if (opt == 'h')
-            {
-                exit(EXIT_SUCCESS);
-            }
-            else
-            {
-                exit(EXIT_FAILURE);
-            }
+            printUsage(stderr, program);
+            exit(EXIT_FAILURE);
 
             break;
         }
@@ -140,9 +150,42 @@ main(
 
     //---------------------------------------------------------------------
 
+    struct pidfh *pfh = NULL;
+
     if (isDaemon)
     {
-        daemon(0, 0);
+        if (pidfile != NULL)
+        {
+            pid_t otherpid;
+            pfh = pidfile_open(pidfile, 0600, &otherpid);
+
+            if (pfh == NULL)
+            {
+                fprintf(stderr,
+                        "%s is already running %jd\n",
+                        program,
+                        (intmax_t)otherpid);
+                exit(EXIT_FAILURE);
+            }
+        }
+        
+        if (daemon(0, 0) == -1)
+        {
+            fprintf(stderr, "Cannot daemonize\n");
+
+            if (pfh)
+            {
+                pidfile_remove(pfh);
+            }
+
+            exit(EXIT_FAILURE);
+        }
+
+        if (pfh)
+        {
+            pidfile_write(pfh);
+        }
+
         openlog(program, LOG_PID, LOG_USER);
     }
 
@@ -150,6 +193,11 @@ main(
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
     {
+        if (pfh)
+        {
+            pidfile_remove(pfh);
+        }
+
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");
@@ -164,6 +212,11 @@ main(
 
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
+        if (pfh)
+        {
+            pidfile_remove(pfh);
+        }
+
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
         exit(EXIT_FAILURE);
     }
@@ -172,6 +225,11 @@ main(
 
     if (signal(SIGTERM, signalHandler) == SIG_ERR)
     {
+        if (pfh)
+        {
+            pidfile_remove(pfh);
+        }
+
         perrorLog(isDaemon, program, "installing SIGTERM signal handler");
         exit(EXIT_FAILURE);
     }
@@ -182,6 +240,11 @@ main(
 
     if (initLcd(&lcd, 90) == false)
     {
+        if (pfh)
+        {
+            pidfile_remove(pfh);
+        }
+
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
@@ -251,6 +314,11 @@ main(
     if (isDaemon)
     {
         closelog();
+    }
+
+    if (pfh)
+    {
+        pidfile_remove(pfh);
     }
 
     //---------------------------------------------------------------------

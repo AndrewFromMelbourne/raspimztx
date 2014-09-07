@@ -47,13 +47,14 @@
 
 //-------------------------------------------------------------------------
 
-static void
+static char
 getIpAddress(
     char *buffer, 
     size_t bufferSize)
 {
     struct ifaddrs *ifaddr = NULL;
     struct ifaddrs *ifa = NULL;
+    char interface = 'X';
 
     getifaddrs(&ifaddr);
 
@@ -71,6 +72,8 @@ getIpAddress(
             if (strcmp(ifa->ifa_name, "lo") != 0)
             {
                 inet_ntop(AF_INET, addr, buffer, bufferSize);
+                interface = ifa->ifa_name[0];
+                break;
             }
         }
     }
@@ -79,6 +82,8 @@ getIpAddress(
     {
         freeifaddrs(ifaddr);
     }
+
+    return interface;
 }
 
 //-------------------------------------------------------------------------
@@ -140,15 +145,28 @@ initStaticInfo(
 
     clearImageRGB(image, &background);
 
+    char ipaddress[INET_ADDRSTRLEN];
+    char networkInterface = getIpAddress(ipaddress, sizeof(ipaddress));
+
     FONT_POSITION_T position = 
         drawStringRGB(0,
                       image->height - 2 - FONT_HEIGHT,
-                      "ip: ",
+                      "ip(",
                       &heading,
                       image);
 
-    char ipaddress[INET_ADDRSTRLEN];
-    getIpAddress(ipaddress, sizeof(ipaddress));
+
+    position = drawCharRGB(position.x,
+                           position.y,
+                           networkInterface,
+                           &foreground,
+                           image);
+
+    position = drawStringRGB(position.x,
+                             position.y,
+                             ") ",
+                             &heading,
+                             image);
 
     position = drawStringRGB(position.x,
                              position.y,
@@ -158,7 +176,7 @@ initStaticInfo(
 
     position = drawStringRGB(position.x,
                              position.y,
-                             " memory: ",
+                             " memory ",
                              &heading,
                              image);
 

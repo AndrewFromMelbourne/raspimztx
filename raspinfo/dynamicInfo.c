@@ -131,7 +131,7 @@ showDynamicInfo(
     FONT_POSITION_T position = 
         drawStringRGB(0,
                       image->height - 2 - FONT_HEIGHT,
-                      "time: ",
+                      "time ",
                       &(info->heading),
                       image);
 
@@ -146,7 +146,7 @@ showDynamicInfo(
 
     position = drawStringRGB(position.x,
                              position.y,
-                             " temperature: ",
+                             " temperature ",
                              &(info->heading),
                              image);
 

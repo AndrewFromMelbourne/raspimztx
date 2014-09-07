@@ -3,7 +3,7 @@ OBJS=fb2mztx.o ../common/lcd.o ../common/syslogUtilities.o \
 BIN=fb2mztx
 
 CFLAGS+=-Wall -g -O3 -I../common
-LDFLAGS+=-lbcm2835
+LDFLAGS+=-lbcm2835 -lbsd
 
 all: $(BIN)
 
