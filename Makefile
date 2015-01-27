@@ -3,7 +3,8 @@ TARGETS=	dmx2mztx \
 			jpg2mztx \
 			png2mztx \
 			raspinfo \
-			test
+			test \
+			webcam
 
 default :all
 
