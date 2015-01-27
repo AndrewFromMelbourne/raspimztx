@@ -172,13 +172,7 @@ main(
         if (daemon(0, 0) == -1)
         {
             fprintf(stderr, "Cannot daemonize\n");
-
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         if (pfh)
@@ -193,15 +187,10 @@ main(
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -212,26 +201,16 @@ main(
 
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGTERM, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGTERM signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -241,16 +220,11 @@ main(
 
     if (initLcd(&lcd, rotate) == false)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "LCD initialization failed");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     clearLcd(&lcd, packRGB(0, 0, 0));

@@ -189,13 +189,7 @@ main(
         if (daemon(0, 0) == -1)
         {
             fprintf(stderr, "Cannot daemonize\n");
-
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         if (pfh)
@@ -210,41 +204,26 @@ main(
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGTERM, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGTERM signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -253,16 +232,11 @@ main(
 
     if (initLcd(&lcd, 90) == false)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "LCD initialization failed");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -272,57 +246,37 @@ main(
 
     if (fbfd == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "cannot open framebuffer");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     struct fb_fix_screeninfo finfo;
 
     if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                   "reading framebuffer fixed information");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     struct fb_var_screeninfo vinfo;
 
     if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                   "reading framebuffer variabl information");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     if (vinfo.bits_per_pixel != 16)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "only 16 bits per pixels supported");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     void *fbp = mmap(0,
@@ -334,15 +288,10 @@ main(
 
     if ((int)fbp == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                   "failed to map framebuffer device to memory");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -384,13 +333,8 @@ main(
 
     if (fbcopy == NULL)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "failed to create copy buffer");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------

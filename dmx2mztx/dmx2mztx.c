@@ -188,13 +188,7 @@ main(
         if (daemon(0, 0) == -1)
         {
             fprintf(stderr, "Cannot daemonize\n");
-
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         if (pfh)
@@ -209,15 +203,10 @@ main(
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -245,42 +234,27 @@ main(
 
     if (display_rotate & 1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "cannot copy rotated display");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGTERM, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGTERM signal handler");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -289,16 +263,11 @@ main(
 
     if (initLcd(&lcd, 90) == false)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "LCD initialization failed");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -313,16 +282,11 @@ main(
 
     if (dmxImagePtr == NULL)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "unable to allocated image buffer");
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -362,11 +326,6 @@ main(
 
         if (result != 0)
         {
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
             free(dmxImagePtr);
             vc_dispmanx_resource_delete(resourceHandle);
             vc_dispmanx_display_close(displayHandle);
@@ -375,7 +334,7 @@ main(
                        program,
                        LOG_ERR,
                       "vc_dispmanx_snapshot() failed");
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         VC_RECT_T rect;
@@ -388,11 +347,6 @@ main(
 
         if (result != 0)
         {
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
             free(dmxImagePtr);
             vc_dispmanx_resource_delete(resourceHandle);
             vc_dispmanx_display_close(displayHandle);
@@ -401,7 +355,7 @@ main(
                        program,
                        LOG_ERR,
                     "vc_dispmanx_resource_read_data() failed");
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         //-----------------------------------------------------------------

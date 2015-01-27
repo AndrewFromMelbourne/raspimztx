@@ -34,6 +34,8 @@
 #include <syslog.h>
 #include <unistd.h>
 
+#include "syslogUtilities.h"
+
 //-------------------------------------------------------------------------
 
 void
@@ -116,3 +118,15 @@ perrorLog(
 
 //-------------------------------------------------------------------------
 
+void
+exitAndRemovePidFile(
+    int status,
+    struct pidfh *pfh)
+{
+    if (pfh)
+    {
+        pidfile_remove(pfh);
+    }
+
+    exit(status);
+}

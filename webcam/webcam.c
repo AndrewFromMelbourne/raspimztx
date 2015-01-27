@@ -373,12 +373,7 @@ main(
         {
             fprintf(stderr, "Cannot daemonize\n");
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         if (pfh)
@@ -393,41 +388,29 @@ main(
 
     if (access("/dev/mem", R_OK | W_OK) == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon,
                   program,
                  "read and write access to /dev/mem required");
-        exit(EXIT_FAILURE);
+
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGINT, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGINT signal handler");
-        exit(EXIT_FAILURE);
+
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
 
     if (signal(SIGTERM, signalHandler) == SIG_ERR)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "installing SIGTERM signal handler");
-        exit(EXIT_FAILURE);
+
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -436,16 +419,12 @@ main(
 
     if (initLcd(&lcd, 90) == false)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         messageLog(isDaemon,
                    program,
                    LOG_ERR,
                    "LCD initialization failed");
-        exit(EXIT_FAILURE);
+
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -455,13 +434,9 @@ main(
 
     if (vfd == -1)
     {
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
         perrorLog(isDaemon, program, "cannot open video device");
-        exit(EXIT_FAILURE);
+
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -470,12 +445,7 @@ main(
     {
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -486,13 +456,11 @@ main(
     {
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
+
+    int16_t xOffset = (lcd.width - width) / 2;
+    int16_t yOffset = (lcd.height - height) / 2;
 
     //---------------------------------------------------------------------
 
@@ -520,12 +488,7 @@ main(
 
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     if (reqbuffers.count < 2)
@@ -536,12 +499,7 @@ main(
                    "insufficient buffer memory on video device");
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     size_t numberOfVideoBuffers = reqbuffers.count;
@@ -571,12 +529,7 @@ main(
 
             close(vfd);
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         videoBuffers[bufferIndex].length = buffer.length;
@@ -596,12 +549,7 @@ main(
 
             close(vfd);
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
     }
 
@@ -628,12 +576,7 @@ main(
 
             close(vfd);
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
     }
 
@@ -650,12 +593,7 @@ main(
 
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //---------------------------------------------------------------------
@@ -688,12 +626,7 @@ main(
 
             close(vfd);
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         uint8_t *yuyv = videoBuffers[buffer.index].buffer;
@@ -728,7 +661,7 @@ main(
             }
         }
 
-        putImageLcd(&lcd, 0, 0, &image);
+        putImageLcd(&lcd, xOffset, yOffset, &image);
 
         if (ioctl(vfd, VIDIOC_QBUF, &buffer) == -1)
         {
@@ -739,12 +672,7 @@ main(
 
             close(vfd);
 
-            if (pfh)
-            {
-                pidfile_remove(pfh);
-            }
-
-            exit(EXIT_FAILURE);
+            exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
         //-----------------------------------------------------------------
@@ -778,12 +706,7 @@ main(
 
         close(vfd);
 
-        if (pfh)
-        {
-            pidfile_remove(pfh);
-        }
-
-        exit(EXIT_FAILURE);
+        exitAndRemovePidFile(EXIT_FAILURE, pfh);
     }
 
     //--------------------------------------------------------------------

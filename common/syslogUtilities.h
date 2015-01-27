@@ -32,6 +32,8 @@
 
 #include <stdbool.h>
 
+#include <bsd/libutil.h>
+
 //-------------------------------------------------------------------------
 
 void
@@ -47,6 +49,11 @@ perrorLog(
     bool isDaemon,
     const char *name,
     const char *s);
+
+void
+exitAndRemovePidFile(
+    int status,
+    struct pidfh *pfh);
 
 //-------------------------------------------------------------------------
 
