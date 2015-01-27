@@ -237,8 +237,9 @@ main(
     //---------------------------------------------------------------------
 
     LCD_T lcd;
+    uint16_t rotate = 90;
 
-    if (initLcd(&lcd, 90) == false)
+    if (initLcd(&lcd, rotate) == false)
     {
         if (pfh)
         {
@@ -257,6 +258,7 @@ main(
     //---------------------------------------------------------------------
 
     int16_t top = 0;
+    int16_t traceHeight = 80;
 
     STATIC_INFO_T staticInfo;
     top = initStaticInfo(lcd.width, top, &staticInfo);
@@ -270,12 +272,12 @@ main(
     //---------------------------------------------------------------------
 
     CPU_TRACE_T cpuTrace;
-    top = initCpuTrace(lcd.width, 80, top, &cpuTrace);
+    top = initCpuTrace(lcd.width, traceHeight, top, &cpuTrace);
 
     //---------------------------------------------------------------------
 
     MEMORY_TRACE_T memoryTrace;
-    top = initMemoryTrace(lcd.width, 80, top, &memoryTrace);
+    top = initMemoryTrace(lcd.width, traceHeight, top, &memoryTrace);
 
     //---------------------------------------------------------------------
 
@@ -288,6 +290,7 @@ main(
 
         //-----------------------------------------------------------------
 
+        showStaticInfo(&lcd, &staticInfo);
         showDynamicInfo(&lcd, &dynamicInfo);
         graphCpuUsage(now.tv_sec, &lcd, &cpuTrace);
         graphMemoryUsage(now.tv_sec, &lcd, &memoryTrace);
