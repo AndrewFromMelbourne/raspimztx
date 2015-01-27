@@ -1,5 +1,5 @@
 OBJS=main.o cpuTrace.o memoryTrace.o staticInfo.o dynamicInfo.o\
-    ../common/lcd.o ../common/image.o ../common/key.o ../common/font.o \
+    ../common/lcd.o ../common/image.o ../common/font.o \
     ../common/syslogUtilities.o
 BIN=raspinfo
 
