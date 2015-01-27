@@ -130,10 +130,6 @@ initStaticInfo(
 {
     info->yPosition = yPosition;
 
-    RGB8_T heading = { 255, 255, 0 };
-    RGB8_T foreground = { 255, 255, 255 };
-    RGB8_T background = { 0, 0, 0 };
-
     //---------------------------------------------------------------------
 
     IMAGE_T *image = &(info->image);
@@ -142,6 +138,35 @@ initStaticInfo(
     {
         exit(EXIT_FAILURE);
     }
+
+    //---------------------------------------------------------------------
+
+    return yPosition + image->height;
+}
+
+//-------------------------------------------------------------------------
+
+void
+destroyStaticInfo(
+    STATIC_INFO_T *info)
+{
+    destroyImage(&(info->image));
+}
+
+//-------------------------------------------------------------------------
+
+void
+showStaticInfo(
+    LCD_T *lcd,
+    STATIC_INFO_T *info)
+{
+    RGB8_T heading = { 255, 255, 0 };
+    RGB8_T foreground = { 255, 255, 255 };
+    RGB8_T background = { 0, 0, 0 };
+
+    //---------------------------------------------------------------------
+
+    IMAGE_T *image = &(info->image);
 
     clearImageRGB(image, &background);
 
@@ -197,25 +222,6 @@ initStaticInfo(
 
     //---------------------------------------------------------------------
 
-    return yPosition + image->height;
-}
-
-//-------------------------------------------------------------------------
-
-void
-destroyStaticInfo(
-    STATIC_INFO_T *info)
-{
-    destroyImage(&(info->image));
-}
-
-//-------------------------------------------------------------------------
-
-void
-showStaticInfo(
-    LCD_T *lcd,
-    STATIC_INFO_T *info)
-{
     putImageLcd(lcd, 0, info->yPosition, &(info->image));
 }
 
