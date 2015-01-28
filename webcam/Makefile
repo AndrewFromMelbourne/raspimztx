@@ -1,4 +1,5 @@
-OBJS=webcam.o ../common/lcd.o ../common/image.o ../common/syslogUtilities.o
+OBJS=webcam.o yuv.o ../common/lcd.o ../common/image.o \
+     ../common/syslogUtilities.o
 BIN=webcam
 
 CFLAGS+=-Wall -g -O3 -I../common

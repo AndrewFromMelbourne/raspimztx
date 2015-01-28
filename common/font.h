@@ -59,11 +59,27 @@ drawCharRGB(
     IMAGE_T *image);
 
 FONT_POSITION_T
+drawCharRGB565(
+    int16_t x,
+    int16_t y,
+    uint8_t c,
+    uint16_t rgb,
+    IMAGE_T *image);
+
+FONT_POSITION_T
 drawStringRGB(
     int16_t x,
     int16_t y,
     const char *string,
     const RGB8_T *rgb,
+    IMAGE_T *image);
+
+FONT_POSITION_T
+drawStringRGB565(
+    int16_t x,
+    int16_t y,
+    const char *string,
+    uint16_t rgb,
     IMAGE_T *image);
 
 //-------------------------------------------------------------------------

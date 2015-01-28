@@ -65,15 +65,15 @@ typedef struct
     CPU_STATS_T currentStats;
     CPU_STATS_T previousStats;
     IMAGE_T image;
-    RGB8_T userColour;
-    RGB8_T userGridColour;
-    RGB8_T niceColour;
-    RGB8_T niceGridColour;
-    RGB8_T systemColour;
-    RGB8_T systemGridColour;
-    RGB8_T foreground;
-    RGB8_T background;
-    RGB8_T gridColour;
+    uint16_t userColour;
+    uint16_t userGridColour;
+    uint16_t niceColour;
+    uint16_t niceGridColour;
+    uint16_t systemColour;
+    uint16_t systemGridColour;
+    uint16_t foreground;
+    uint16_t background;
+    uint16_t gridColour;
 } CPU_TRACE_T;
 
 //-------------------------------------------------------------------------

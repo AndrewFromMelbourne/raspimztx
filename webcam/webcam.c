@@ -51,6 +51,7 @@
 #include "image.h"
 #include "lcd.h"
 #include "syslogUtilities.h"
+#include "yuv.h"
 
 //-------------------------------------------------------------------------
 
@@ -69,15 +70,6 @@ typedef struct
 
 //-------------------------------------------------------------------------
 
-typedef struct
-{
-    uint8_t y;
-    uint8_t u;
-    uint8_t v;
-} YUV8_T;
-
-//-------------------------------------------------------------------------
-
 volatile bool run = true;
 
 //-------------------------------------------------------------------------
@@ -92,8 +84,10 @@ printUsage(
     fprintf(fp, "\n");
     fprintf(fp, "    --daemon - start in the background as a daemon\n");
     fprintf(fp, "    --fps <fps> - set desired frames per second");
+    fprintf(fp, "    --greyscale - display greyscale video");
     fprintf(fp, " (default %d frames per second)\n", DEFAULT_FPS);
     fprintf(fp, "    --pidfile <pidfile> - create and lock PID file (if being run as a daemon)\n");
+    fprintf(fp, "    --sample <value> - only display every value frame)\n");
     fprintf(fp, "    --width <width> - set video width");
     fprintf(fp, " (default %d)\n", DEFAULT_WIDTH);
     fprintf(fp, "    --height <height> - set video height");
@@ -116,40 +110,6 @@ signalHandler(
         run = false;
         break;
     };
-}
-
-//-------------------------------------------------------------------------
-
-uint8_t
-clip255(
-    int16_t value)
-{
-    if (value < 0)
-    {
-        value = 0;
-    }
-    else if (value > 255)
-    {
-        value = 255;
-    }
-
-    return value;
-}
-
-//-------------------------------------------------------------------------
-
-void
-yuvToRgb(
-    const YUV8_T *yuv,
-    RGB8_T *rgb)
-{
-    int16_t c = yuv->y - 16;
-    int16_t d = yuv->u - 128;
-    int16_t e = yuv->v - 128;
-
-    rgb->red = clip255((298 * c + 409 * e + 128) >> 8);
-    rgb->green = clip255((298 * c - 100 * d - 208 * e + 128) >> 8);
-    rgb->blue = clip255((298 * c + 516 * d + 128) >> 8);
 }
 
 //-------------------------------------------------------------------------
@@ -267,23 +227,27 @@ main(
 {
     const char *program = basename(argv[0]);
 
+    bool greyscale = false;
     int width = DEFAULT_WIDTH;
     int height = DEFAULT_HEIGHT;
     int fps = DEFAULT_FPS;
     suseconds_t frameDuration =  1000000 / fps;
+    uint8_t sample = 1;
     bool isDaemon =  false;
     char *pidfile = NULL;
 
     //---------------------------------------------------------------------
 
-    static const char *sopts = "df:hH:p:W:";
+    static const char *sopts = "df:ghH:p:s:W:";
     static struct option lopts[] = 
     {
         { "daemon", no_argument, NULL, 'd' },
         { "fps", required_argument, NULL, 'f' },
+        { "greyscale", no_argument, NULL, 'g' },
         { "height", required_argument, NULL, 'H' },
         { "help", no_argument, NULL, 'h' },
         { "pidfile", required_argument, NULL, 'p' },
+        { "sample", required_argument, NULL, 's' },
         { "width", required_argument, NULL, 'W' },
         { NULL, no_argument, NULL, 0 }
     };
@@ -314,6 +278,12 @@ main(
 
             break;
 
+        case 'g':
+
+            greyscale = true;
+
+            break;
+
         case 'h':
 
             printUsage(stdout, program);
@@ -324,6 +294,17 @@ main(
         case 'p':
 
             pidfile = optarg;
+
+            break;
+
+        case 's':
+
+            sample = atoi(optarg);
+
+            if (sample < 1)
+            {
+                sample = 1;
+            }
 
             break;
 
@@ -604,6 +585,8 @@ main(
 
     //---------------------------------------------------------------------
 
+    uint32_t frame = 0;
+
     while (run)
     {
         gettimeofday(&start_time, NULL);
@@ -629,39 +612,60 @@ main(
             exitAndRemovePidFile(EXIT_FAILURE, pfh);
         }
 
-        uint8_t *yuyv = videoBuffers[buffer.index].buffer;
+        //-----------------------------------------------------------------
 
-        int y;
-        for (y = 0 ; y < height ; y++)
+        if ((frame % sample) == 0)
         {
-            int x;
-            for (x = 0 ; x < width ; x++)
+            uint8_t *yuyv = videoBuffers[buffer.index].buffer;
+
+            int y;
+            for (y = 0 ; y < height ; y++)
             {
-                size_t offset =  2 * (x + (y * width));
-
-                RGB8_T rgb;
-                YUV8_T yuv;
-
-                yuv.y = yuyv[offset];
-
-                if (offset % 4)
+                int x;
+                for (x = 0 ; x < width ; x++)
                 {
-                    yuv.u = yuyv[offset - 1];
-                    yuv.v = yuyv[offset + 1];
-                }
-                else
-                {
-                    yuv.u = yuyv[offset + 1];
-                    yuv.v = yuyv[offset + 3];
-                }
+                    size_t offset =  2 * (x + (y * width));
 
-                yuvToRgb(&yuv, &rgb);
+                    RGB8_T rgb;
 
-                setPixelRGB(&image, x, y, &rgb);
+                    if (greyscale)
+                    {
+                        uint8_t grey = yuyv[offset];
+
+                        rgb.red = grey;
+                        rgb.green = grey;
+                        rgb.blue = grey;
+                    }
+                    else
+                    {
+                        YUV8_T yuv;
+
+                        yuv.y = yuyv[offset];
+
+                        if (offset % 4)
+                        {
+                            yuv.u = yuyv[offset - 1];
+                            yuv.v = yuyv[offset + 1];
+                        }
+                        else
+                        {
+                            yuv.u = yuyv[offset + 1];
+                            yuv.v = yuyv[offset + 3];
+                        }
+
+                        yuvToRgb(&yuv, &rgb);
+                    }
+
+                    setPixelRGB(&image, x, y, &rgb);
+                }
             }
+
+            putImageLcd(&lcd, xOffset, yOffset, &image);
         }
 
-        putImageLcd(&lcd, xOffset, yOffset, &image);
+        ++ frame;
+
+        //-----------------------------------------------------------------
 
         if (ioctl(vfd, VIDIOC_QBUF, &buffer) == -1)
         {

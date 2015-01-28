@@ -47,15 +47,15 @@ typedef struct
     int8_t *cached;
     int8_t *time;
     IMAGE_T image;
-    RGB8_T usedColour;
-    RGB8_T usedGridColour;
-    RGB8_T buffersColour;
-    RGB8_T buffersGridColour;
-    RGB8_T cachedColour;
-    RGB8_T cachedGridColour;
-    RGB8_T foreground;
-    RGB8_T background;
-    RGB8_T gridColour;
+    uint16_t usedColour;
+    uint16_t usedGridColour;
+    uint16_t buffersColour;
+    uint16_t buffersGridColour;
+    uint16_t cachedColour;
+    uint16_t cachedGridColour;
+    uint16_t foreground;
+    uint16_t background;
+    uint16_t gridColour;
 } MEMORY_TRACE_T;
 
 //-------------------------------------------------------------------------

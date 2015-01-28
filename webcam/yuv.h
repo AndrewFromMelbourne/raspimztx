@@ -2,7 +2,7 @@
 //
 // The MIT License (MIT)
 //
-// Copyright (c) 2014 Andrew Duncan
+// Copyright (c) 2015 Andrew Duncan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -25,116 +25,55 @@
 //
 //-------------------------------------------------------------------------
 
-#ifndef IMAGE_H
-#define IMAGE_H
+#include "image.h"
 
-//-------------------------------------------------------------------------
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
+#ifndef YUV_H
+#define YUV_H
 
 //-------------------------------------------------------------------------
 
 typedef struct
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} RGB8_T;
+    uint8_t y;
+    uint8_t u;
+    uint8_t v;
+} YUV8_T;
 
-//-------------------------------------------------------------------------
-
-typedef struct IMAGE_T_ IMAGE_T;
-
-struct IMAGE_T_
+typedef struct
 {
-    int16_t width;
-    int16_t height;
-    int32_t size;
-    uint16_t *buffer;
-    void (*clearImage)(IMAGE_T*, const RGB8_T*);
-    void (*setPixel)(IMAGE_T*, int16_t, int16_t, const RGB8_T*);
-};
+    uint16_t lookup[32 * 32 * 32];
+} YUV555_LOOKUP_T;
 
 //-------------------------------------------------------------------------
 
 uint16_t
-packRGB565(
-    uint8_t red,
-    uint8_t green,
-    uint8_t blue);
-
-void
-setRGB(
-    RGB8_T *rgb,
-    uint8_t red,
-    uint8_t green,
-    uint8_t blue);
-
-uint16_t
-blendRGB565(
-    uint8_t alpha,
-    uint16_t a,
-    uint16_t b);
-
-void
-blendRGB(
-    uint8_t alpha,
-    const RGB8_T *a,
-    const RGB8_T *b,
-    RGB8_T *result);
+packYUV555(
+    uint8_t y,
+    uint8_t u,
+    uint8_t v);
 
 //-------------------------------------------------------------------------
 
-bool
-initImage(
-    IMAGE_T *image,
-    int16_t width,
-    int16_t height,
-    bool dither);
-
 void
-clearImageRGB565(
-    IMAGE_T *image,
-    uint16_t rgb);
-
-void
-clearImageRGB(
-    IMAGE_T *image,
-    const RGB8_T *rgb);
-
-bool
-setPixelRGB565(
-    IMAGE_T *image,
-    int16_t x,
-    int16_t y,
-    uint16_t rgb);
-
-bool
-setPixelRGB(
-    IMAGE_T *image,
-    int16_t x,
-    int16_t y,
-    const RGB8_T *rgb);
-
-bool
-getPixelRGB565(
-    IMAGE_T *image,
-    int16_t x,
-    int16_t y,
-    uint16_t *rgb);
-
-bool
-getPixelRGB(
-    IMAGE_T *image,
-    int16_t x,
-    int16_t y,
+yuvToRgb(
+    const YUV8_T *yuv,
     RGB8_T *rgb);
 
+//-------------------------------------------------------------------------
+
 void
-destroyImage(
-    IMAGE_T *image);
+initYUV555Lookup(
+    YUV555_LOOKUP_T *lookup);
+
+uint16_t
+lookupYUVtoRGB565(
+    const YUV555_LOOKUP_T *lookup,
+    const YUV8_T *yuv);
+
+uint16_t
+lookupYUV555toRGB565(
+    const YUV555_LOOKUP_T *lookup,
+    uint16_t yuv);
 
 //-------------------------------------------------------------------------
 

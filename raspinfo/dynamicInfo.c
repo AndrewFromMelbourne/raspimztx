@@ -99,9 +99,9 @@ initDynamicInfo(
         exit(EXIT_FAILURE);
     }
 
-    setRGB(&(info->heading), 255, 255, 0);
-    setRGB(&(info->foreground), 255, 255, 255);
-    setRGB(&(info->background), 0, 0, 0);
+    info->heading = packRGB565(255, 255, 0);
+    info->foreground = packRGB565(255, 255, 255);
+    info->background = packRGB565(0, 0, 0);
 
     //---------------------------------------------------------------------
 
@@ -126,53 +126,53 @@ showDynamicInfo(
 {
     IMAGE_T *image = &(info->image);
 
-    clearImageRGB(image, &(info->background));
+    clearImageRGB565(image, info->background);
 
     FONT_POSITION_T position = 
-        drawStringRGB(0,
-                      image->height - 2 - FONT_HEIGHT,
-                      "time ",
-                      &(info->heading),
-                      image);
+        drawStringRGB565(0,
+                         image->height - 2 - FONT_HEIGHT,
+                         "time ",
+                         info->heading,
+                         image);
 
     char timeString[32];
     getTime(timeString, sizeof(timeString));
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             timeString,
-                             &(info->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                timeString,
+                                info->foreground,
+                                image);
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             " temperature ",
-                             &(info->heading),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " temperature ",
+                                info->heading,
+                                image);
 
     char temperatureString[10];
     getTemperature(temperatureString, sizeof(temperatureString));
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             temperatureString,
-                             &(info->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                temperatureString,
+                                info->foreground,
+                                image);
 
     uint8_t degreeSymbol = 0xF8;
 
-    position = drawCharRGB(position.x,
-                           position.y,
-                           degreeSymbol,
-                           &(info->foreground),
-                           image);
+    position = drawCharRGB565(position.x,
+                              position.y,
+                              degreeSymbol,
+                              info->foreground,
+                              image);
 
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             "C",
-                             &(info->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                "C",
+                                info->foreground,
+                                image);
 
     putImageLcd(lcd, 0, info->yPosition, &(info->image));
 }

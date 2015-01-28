@@ -4678,6 +4678,38 @@ drawCharRGB(
 //-------------------------------------------------------------------------
 
 FONT_POSITION_T
+drawCharRGB565(
+    int16_t x,
+    int16_t y,
+    uint8_t c,
+    uint16_t rgb,
+    IMAGE_T *image)
+{
+    int16_t j;
+    for (j = 0 ; j < FONT_HEIGHT ; j++)
+    {
+        uint8_t byte = font[c][j];
+
+        if (byte != 0)
+        {
+            int16_t i;
+            for (i = 0 ; i < FONT_WIDTH ; ++i)
+            {
+                if ((byte >> (FONT_WIDTH - i - 1)) & 1 )
+                {
+                    setPixelRGB565(image, x + i, y + j, rgb);
+                }
+            }
+        }
+    }
+
+    FONT_POSITION_T position = { x + FONT_WIDTH, y };
+    return position;
+}
+
+//-------------------------------------------------------------------------
+
+FONT_POSITION_T
 drawStringRGB(
     int16_t x,
     int16_t y,
@@ -4699,6 +4731,40 @@ drawStringRGB(
             else
             {
                 drawCharRGB(x, y, *string, rgb, image);
+                x += FONT_WIDTH;
+            }
+            ++string;
+        }
+    }
+
+    FONT_POSITION_T position = { x, y };
+    return position;
+}
+
+//-------------------------------------------------------------------------
+
+FONT_POSITION_T
+drawStringRGB565(
+    int16_t x,
+    int16_t y,
+    const char *string,
+    uint16_t rgb,
+    IMAGE_T *image)
+{
+    if (string != NULL)
+    {
+        int16_t x_first = x;
+
+        while (*string != '\0')
+        {
+            if (*string == '\n')
+            {
+                x = x_first;
+                y += FONT_HEIGHT;
+            }
+            else
+            {
+                drawCharRGB565(x, y, *string, rgb, image);
                 x += FONT_WIDTH;
             }
             ++string;

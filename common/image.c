@@ -37,35 +37,52 @@
 //-------------------------------------------------------------------------
 
 void
-clearImageRGB565(
+clearImageDirect(
     IMAGE_T *image,
     const RGB8_T *rgb);
 
 void
-clearImageDitheredRGB565(
+clearImageDithered(
     IMAGE_T *image,
     const RGB8_T *rgb);
 
 void
-setPixelRGB565(
-    IMAGE_T *image,
-    int16_t x,
-    int16_t y,
-    const RGB8_T *rgb);
-
-void
-setPixelDitheredRGB565(
+setPixelDirect(
     IMAGE_T *image,
     int16_t x,
     int16_t y,
     const RGB8_T *rgb);
 
 void
-getPixelRGB565(
+setPixelDithered(
+    IMAGE_T *image,
+    int16_t x,
+    int16_t y,
+    const RGB8_T *rgb);
+
+void
+getPixelDirect(
     IMAGE_T *image,
     int16_t x,
     int16_t y,
     RGB8_T *rgb);
+
+//-------------------------------------------------------------------------
+
+uint16_t
+packRGB565(
+    uint8_t red,
+    uint8_t green,
+    uint8_t blue)
+{
+    uint8_t r5 = red >> 3;
+    uint8_t g6 = green >> 2;
+    uint8_t b5 = blue >> 3;
+
+    uint16_t pixel = (r5 << 11) | (g6 << 5) | b5;
+
+    return htons(pixel);
+}
 
 //-------------------------------------------------------------------------
 
@@ -79,6 +96,18 @@ setRGB(
     rgb->red = red;
     rgb->green = green;
     rgb->blue = blue;
+}
+
+//-------------------------------------------------------------------------
+
+uint16_t
+blendRGB565(
+    uint8_t alpha,
+    uint16_t a,
+    uint16_t b)
+{
+    uint32_t value = ((a * alpha) + (b * (255-alpha))) / 255;
+    return value;
 }
 
 //-------------------------------------------------------------------------
@@ -113,13 +142,13 @@ bool initImage(
 {
     if (dither)
     {
-        image->clearImage = clearImageDitheredRGB565;
-        image->setPixel = setPixelDitheredRGB565;
+        image->clearImage = clearImageDithered;
+        image->setPixel = setPixelDithered;
     }
     else
     {
-        image->clearImage = clearImageRGB565;
-        image->setPixel = setPixelRGB565;
+        image->clearImage = clearImageDirect;
+        image->setPixel = setPixelDirect;
     }
 
     image->width = width;
@@ -140,6 +169,23 @@ bool initImage(
 //-------------------------------------------------------------------------
 
 void
+clearImageRGB565(
+    IMAGE_T *image,
+    uint16_t rgb)
+{
+    int length = image->width * image->height;
+    uint16_t *buffer = image->buffer;
+
+    int i = 0;
+    for (i = 0 ; i < length ; i++)
+    {
+        *buffer++ = rgb;
+    }
+}
+
+//-------------------------------------------------------------------------
+
+void
 clearImageRGB(
     IMAGE_T *image,
     const RGB8_T *rgb)
@@ -153,15 +199,11 @@ clearImageRGB(
 //-------------------------------------------------------------------------
 
 void
-clearImageRGB565(
+clearImageDirect(
     IMAGE_T *image,
     const RGB8_T *rgb)
 {
-    uint8_t r5 = rgb->red >> 3;
-    uint8_t g6 = rgb->green >> 2;
-    uint8_t b5 = rgb->blue >> 3;
-
-    uint16_t pixel = (r5 << 11) | (g6 << 5) | b5;
+    uint16_t pixel = packRGB565(rgb->red, rgb->green, rgb->blue);
 
     int length = image->width * image->height;
     uint16_t *buffer = image->buffer;
@@ -176,7 +218,7 @@ clearImageRGB565(
 //-------------------------------------------------------------------------
 
 void
-clearImageDitheredRGB565(
+clearImageDithered(
     IMAGE_T *image,
     const RGB8_T *rgb)
 {
@@ -186,9 +228,31 @@ clearImageDitheredRGB565(
         int i;
         for (i = 0 ; i < image->width ; i++)
         {
-            setPixelDitheredRGB565(image, i, j, rgb);
+            setPixelDithered(image, i, j, rgb);
         }
     }
+}
+
+//-------------------------------------------------------------------------
+
+bool
+setPixelRGB565(
+    IMAGE_T *image,
+    int16_t x,
+    int16_t y,
+    uint16_t rgb)
+{
+    bool result = false;
+
+    if ((image->setPixel != NULL) &&
+        (x >= 0) && (x < image->width) &&
+        (y >= 0) && (y < image->height))
+    {
+        result = true;
+        image->buffer[x + (y * image->width)] = rgb;
+    }
+
+    return result;
 }
 
 //-------------------------------------------------------------------------
@@ -216,6 +280,27 @@ setPixelRGB(
 //-------------------------------------------------------------------------
 
 bool
+getPixelRGB565(
+    IMAGE_T *image,
+    int16_t x,
+    int16_t y,
+    uint16_t *rgb)
+{
+    bool result = false;
+
+    if ((x >= 0) && (x < image->width) &&
+        (y >= 0) && (y < image->height))
+    {
+        result = true;
+        *rgb = image->buffer[x + (y * image->width)];
+    }
+
+    return result;
+}
+
+//-------------------------------------------------------------------------
+
+bool
 getPixelRGB(
     IMAGE_T *image,
     int16_t x,
@@ -228,7 +313,7 @@ getPixelRGB(
         (y >= 0) && (y < image->height))
     {
         result = true;
-        getPixelRGB565(image, x, y, rgb);
+        getPixelDirect(image, x, y, rgb);
     }
 
     return result;
@@ -255,24 +340,21 @@ destroyImage(
 //-----------------------------------------------------------------------
 
 void
-setPixelRGB565(
+setPixelDirect(
     IMAGE_T *image,
     int16_t x,
     int16_t y,
     const RGB8_T *rgb)
 {
-    uint8_t r5 = rgb->red >> 3;
-    uint8_t g6 = rgb->green >> 2;
-    uint8_t b5 = rgb->blue >> 3;
-
-    uint16_t pixel = (r5 << 11) | (g6 << 5) | b5;
-    image->buffer[x + (y * image->width)] = htons(pixel);
+    image->buffer[x + (y * image->width)] = packRGB565(rgb->red,
+                                                       rgb->green,
+                                                       rgb->blue);
 }
 
 //-----------------------------------------------------------------------
 
 void
-setPixelDitheredRGB565(
+setPixelDithered(
     IMAGE_T *image,
     int16_t x,
     int16_t y,
@@ -327,13 +409,13 @@ setPixelDitheredRGB565(
 
     RGB8_T dithered = { r, g, b };
 
-    setPixelRGB565(image, x, y, &dithered);
+    setPixelDirect(image, x, y, &dithered);
 }
 
 //-----------------------------------------------------------------------
 
 void
-getPixelRGB565(
+getPixelDirect(
     IMAGE_T *image,
     int16_t x,
     int16_t y,

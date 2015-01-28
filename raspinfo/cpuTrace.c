@@ -141,84 +141,81 @@ initCpuTrace(
         exit(EXIT_FAILURE);
     }
 
-    setRGB(&(trace->userColour), 4, 90, 141);
-    setRGB(&(trace->niceColour), 116, 169, 207);
-    setRGB(&(trace->systemColour), 241, 238, 246);
-    setRGB(&(trace->foreground), 255, 255, 255);
-    setRGB(&(trace->background), 0, 0, 0);
-    setRGB(&(trace->gridColour), 48, 48, 48);
+    trace->userColour = packRGB565(4, 90, 141);
+    trace->niceColour = packRGB565(116, 169, 207);
+    trace->systemColour = packRGB565(241, 238, 246);
+    trace->foreground = packRGB565(255, 255, 255);
+    trace->background = packRGB565(0, 0, 0);
+    trace->gridColour = packRGB565(48, 48, 48);
 
-    blendRGB(63,
-             &(trace->gridColour),
-             &(trace->userColour),
-             &(trace->userGridColour));
+    trace->userGridColour = blendRGB565(63,
+                                        trace->gridColour,
+                                        trace->userColour);
 
-    blendRGB(63,
-             &(trace->gridColour),
-             &(trace->niceColour),
-             &(trace->niceGridColour));
+    trace->niceGridColour = blendRGB565(63,
+                                        trace->gridColour,
+                                        trace->niceColour);
 
-    blendRGB(63,
-             &(trace->gridColour),
-             &(trace->systemColour),
-             &(trace->systemGridColour));
+    trace->systemGridColour = blendRGB565(63,
+                                          trace->gridColour,
+                                          trace->systemColour);
 
     //---------------------------------------------------------------------
 
     IMAGE_T *image = &(trace->image);
 
-    clearImageRGB(image, &(trace->background));
+    clearImageRGB565(image, trace->background);
 
     uint8_t smallSquare = 0xFE;
 
     FONT_POSITION_T position = 
-        drawStringRGB(0,
-                      image->height - 2 - FONT_HEIGHT,
-                      "CPU",
-                      &(trace->foreground),
-                      image);
+        drawStringRGB565(0,
+                         image->height - 2 - FONT_HEIGHT,
+                         "CPU",
+                         trace->foreground,
+                         image);
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             " (user:",
-                             &(trace->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " (user:",
+                                trace->foreground,
+                                image);
 
-    position = drawCharRGB(position.x,
-                           position.y,
-                           smallSquare,
-                           &(trace->userColour),
-                           image);
+    position = drawCharRGB565(position.x,
+                              position.y,
+                              smallSquare,
+                              trace->userColour,
+                              image);
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             " nice:",
-                             &(trace->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " nice:",
+                                trace->foreground,
+                                image);
 
-    position = drawCharRGB(position.x,
-                           position.y,
-                           smallSquare,
-                           &(trace->niceColour),
-                           image);
+    position = drawCharRGB565(position.x,
+                              position.y,
+                              smallSquare,
+                              trace->niceColour,
+                              image);
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             " system:",
-                             &(trace->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " system:",
+                                trace->foreground,
+                                image);
 
-    position = drawCharRGB(position.x,
-                           position.y,
-                           smallSquare,
-                           &(trace->systemColour),
-                           image);
+    position = drawCharRGB565(position.x,
+                              position.y,
+                              smallSquare,
+                              trace->systemColour,
+                              image);
 
-    position = drawStringRGB(position.x,
-                             position.y,
-                             ")",
-                             &(trace->foreground),
-                             image);
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                ")",
+                                trace->foreground,
+                                image);
 
     int32_t j = 0;
     for (j = 0 ; j < traceHeight + 1 ; j+= 20)
@@ -226,7 +223,7 @@ initCpuTrace(
         int32_t i = 0;
         for (i = 0 ; i < image->width ;  i++)
         {
-            setPixelRGB(image, i, j, &(trace->gridColour));
+            setPixelRGB565(image, i, j, trace->gridColour);
         }
     }
 
@@ -325,11 +322,11 @@ graphCpuUsage(
         {
             if (((j % 20) == 0) || (trace->time[i] == 0))
             {
-                setPixelRGB(image, i, j--, &(trace->userGridColour));
+                setPixelRGB565(image, i, j--, trace->userGridColour);
             }
             else
             {
-                setPixelRGB(image, i, j--, &(trace->userColour));
+                setPixelRGB565(image, i, j--, trace->userColour);
             }
         }
 
@@ -338,11 +335,11 @@ graphCpuUsage(
         {
             if (((j % 20) == 0) || (trace->time[i] == 0))
             {
-                setPixelRGB(image, i, j--, &(trace->niceGridColour));
+                setPixelRGB565(image, i, j--, trace->niceGridColour);
             }
             else
             {
-                setPixelRGB(image, i, j--, &(trace->niceColour));
+                setPixelRGB565(image, i, j--, trace->niceColour);
             }
         }
 
@@ -351,11 +348,11 @@ graphCpuUsage(
         {
             if (((j % 20) == 0) || (trace->time[i] == 0))
             {
-                setPixelRGB(image, i, j--, &(trace->systemGridColour));
+                setPixelRGB565(image, i, j--, trace->systemGridColour);
             }
             else
             {
-                setPixelRGB(image, i, j--, &(trace->systemColour));
+                setPixelRGB565(image, i, j--, trace->systemColour);
             }
         }
 
@@ -363,11 +360,11 @@ graphCpuUsage(
         {
             if (((j % 20) == 0) || (trace->time[i] == 0))
             {
-                setPixelRGB(image, i, j, &(trace->gridColour));
+                setPixelRGB565(image, i, j, trace->gridColour);
             }
             else
             {
-                setPixelRGB(image, i, j, &(trace->background));
+                setPixelRGB565(image, i, j, trace->background);
             }
         }
     }

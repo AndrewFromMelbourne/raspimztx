@@ -41,9 +41,9 @@ typedef struct
 {
     int16_t yPosition;
     IMAGE_T image;
-    RGB8_T heading;
-    RGB8_T foreground;
-    RGB8_T background;
+    uint16_t heading;
+    uint16_t foreground;
+    uint16_t background;
 } DYNAMIC_INFO_T;
 
 //-------------------------------------------------------------------------
