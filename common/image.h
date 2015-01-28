@@ -66,6 +66,11 @@ packRGB565(
     uint8_t blue);
 
 void
+unpackRGB565(
+    uint16_t packed,
+    RGB8_T *rgb);
+
+void
 setRGB(
     RGB8_T *rgb,
     uint8_t red,

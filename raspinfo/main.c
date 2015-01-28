@@ -53,7 +53,6 @@
 #include "image.h"
 #include "lcd.h"
 #include "memoryTrace.h"
-#include "staticInfo.h"
 #include "syslogUtilities.h"
 
 //-------------------------------------------------------------------------
@@ -234,12 +233,6 @@ main(
     int16_t top = 0;
     int16_t traceHeight = 80;
 
-    STATIC_INFO_T staticInfo;
-    top = initStaticInfo(lcd.width, top, &staticInfo);
-    showStaticInfo(&lcd, &staticInfo);
-
-    //---------------------------------------------------------------------
-
     DYNAMIC_INFO_T dynamicInfo;
     top = initDynamicInfo(lcd.width, top, &dynamicInfo);
 
@@ -264,7 +257,6 @@ main(
 
         //-----------------------------------------------------------------
 
-        showStaticInfo(&lcd, &staticInfo);
         showDynamicInfo(&lcd, &dynamicInfo);
         graphCpuUsage(now.tv_sec, &lcd, &cpuTrace);
         graphMemoryUsage(now.tv_sec, &lcd, &memoryTrace);
@@ -277,7 +269,6 @@ main(
 
     //---------------------------------------------------------------------
 
-    destroyStaticInfo(&staticInfo);
     destroyDynamicInfo(&dynamicInfo);
     destroyCpuTrace(&cpuTrace);
     destroyMemoryTrace(&memoryTrace);

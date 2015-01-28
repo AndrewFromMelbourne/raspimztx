@@ -84,6 +84,24 @@ packRGB565(
     return htons(pixel);
 }
 
+//-----------------------------------------------------------------------
+
+void
+unpackRGB565(
+    uint16_t packed,
+    RGB8_T *rgb)
+{
+    uint16_t pixel = ntohs(packed);
+
+    uint8_t r5 = (pixel >> 11) & 0x1F;
+    uint8_t g6 = (pixel >> 5) & 0x3F;
+    uint8_t b5 = pixel & 0x1F;
+
+    rgb->red = (r5 << 3) | (r5 >> 2);
+    rgb->green = (g6 << 2) | (g6 >> 4);
+    rgb->blue = (b5 << 3) | (b5 >> 2);
+}
+
 //-------------------------------------------------------------------------
 
 void
@@ -106,8 +124,17 @@ blendRGB565(
     uint16_t a,
     uint16_t b)
 {
-    uint32_t value = ((a * alpha) + (b * (255-alpha))) / 255;
-    return value;
+    RGB8_T rgb1;
+    RGB8_T rgb2;
+
+    unpackRGB565(a, &rgb1);
+    unpackRGB565(b, &rgb2);
+
+    RGB8_T blended;
+
+    blendRGB(alpha, &rgb1, &rgb2, &blended);
+
+    return packRGB565(blended.red, blended.green, blended.blue);
 }
 
 //-------------------------------------------------------------------------

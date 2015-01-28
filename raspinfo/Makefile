@@ -1,4 +1,4 @@
-OBJS=main.o cpuTrace.o memoryTrace.o staticInfo.o dynamicInfo.o\
+OBJS=main.o cpuTrace.o memoryTrace.o dynamicInfo.o\
     ../common/lcd.o ../common/image.o ../common/font.o \
     ../common/syslogUtilities.o
 BIN=raspinfo

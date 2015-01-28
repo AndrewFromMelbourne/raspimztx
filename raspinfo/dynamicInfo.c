@@ -48,6 +48,81 @@
 
 //-------------------------------------------------------------------------
 
+static char
+getIpAddress(
+    char *buffer, 
+    size_t bufferSize)
+{
+    struct ifaddrs *ifaddr = NULL;
+    struct ifaddrs *ifa = NULL;
+    char interface = 'X';
+
+    getifaddrs(&ifaddr);
+
+    if (ifaddr == NULL)
+    {
+        snprintf(buffer, bufferSize, "   .   .   .   ");
+    }
+
+    for (ifa = ifaddr ; ifa != NULL ; ifa = ifa->ifa_next)
+    {
+        if (ifa ->ifa_addr->sa_family == AF_INET)
+        {
+            void *addr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+
+            if (strcmp(ifa->ifa_name, "lo") != 0)
+            {
+                inet_ntop(AF_INET, addr, buffer, bufferSize);
+                interface = ifa->ifa_name[0];
+                break;
+            }
+        }
+    }
+
+    if (ifaddr != NULL)
+    {
+        freeifaddrs(ifaddr);
+    }
+
+    return interface;
+}
+
+//-------------------------------------------------------------------------
+
+static void
+getMemorySplit(
+    char *buffer, 
+    size_t bufferSize)
+{
+    int arm_mem = 0;
+    int gpu_mem = 0;
+
+    char response[128];
+
+    memset(response, 0, sizeof(response));
+
+    if (vc_gencmd(response, sizeof(response), "get_mem arm") == 0)
+    {
+        sscanf(response, "arm=%dM", &arm_mem);
+    }
+
+    if (vc_gencmd(response, sizeof(response), "get_mem gpu") == 0)
+    {
+        sscanf(response, "gpu=%dM", &gpu_mem);
+    }
+
+    if ((arm_mem != 0) && (gpu_mem != 0))
+    {
+        snprintf(buffer, bufferSize, "%d/%d", gpu_mem, arm_mem);
+    }
+    else
+    {
+        snprintf(buffer, bufferSize, " / ");
+    }
+}
+
+//-------------------------------------------------------------------------
+
 static void
 getTime(
     char *buffer, 
@@ -94,7 +169,7 @@ initDynamicInfo(
 
     IMAGE_T *image = &(info->image);
 
-    if (initImage(image, width, FONT_HEIGHT + 4, false) == false)
+    if (initImage(image, width, 2 * (FONT_HEIGHT + 4), false) == false)
     {
         exit(EXIT_FAILURE);
     }
@@ -128,12 +203,68 @@ showDynamicInfo(
 
     clearImageRGB565(image, info->background);
 
-    FONT_POSITION_T position = 
-        drawStringRGB565(0,
-                         image->height - 2 - FONT_HEIGHT,
-                         "time ",
-                         info->heading,
-                         image);
+    //---------------------------------------------------------------------
+
+    FONT_POSITION_T position = { .x = 0, .y = 0 };
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                "ip(",
+                                info->heading,
+                                image);
+
+    char ipaddress[INET_ADDRSTRLEN];
+    char networkInterface = getIpAddress(ipaddress, sizeof(ipaddress));
+
+    position = drawCharRGB565(position.x,
+                              position.y,
+                              networkInterface,
+                              info->foreground,
+                              image);
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                ") ",
+                                info->heading,
+                                image);
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                ipaddress,
+                                info->foreground,
+                                image);
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " memory ",
+                                info->heading,
+                                image);
+
+    char memorySplit[10];
+    getMemorySplit(memorySplit, sizeof(memorySplit));
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                memorySplit,
+                                info->foreground,
+                                image);
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                " MB",
+                                info->foreground,
+                                image);
+
+    //---------------------------------------------------------------------
+
+    position.x = 0;
+    position.y += FONT_HEIGHT + 4;
+
+    position = drawStringRGB565(position.x,
+                                position.y,
+                                "time ",
+                                info->heading,
+                                image);
 
     char timeString[32];
     getTime(timeString, sizeof(timeString));
