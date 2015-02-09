@@ -84,8 +84,8 @@ printUsage(
     fprintf(fp, "\n");
     fprintf(fp, "    --daemon - start in the background as a daemon\n");
     fprintf(fp, "    --fps <fps> - set desired frames per second");
-    fprintf(fp, "    --greyscale - display greyscale video");
     fprintf(fp, " (default %d frames per second)\n", DEFAULT_FPS);
+    fprintf(fp, "    --greyscale - display greyscale video\n");
     fprintf(fp, "    --pidfile <pidfile> - create and lock PID file (if being run as a daemon)\n");
     fprintf(fp, "    --sample <value> - only display every value frame)\n");
     fprintf(fp, "    --width <width> - set video width");
