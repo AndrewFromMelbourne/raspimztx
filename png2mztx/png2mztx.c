@@ -143,8 +143,9 @@ main(
         exit(EXIT_FAILURE);
     }
 
+    RGB8_T background = { 0, 0, 0 };
     IMAGE_T image;
-    if (loadPng(filename, &image) == false)
+    if (loadPng(filename, &background, &image) == false)
     {
         fprintf(stderr, "%s: failed to open %s\n", program, filename);
         exit(EXIT_FAILURE);

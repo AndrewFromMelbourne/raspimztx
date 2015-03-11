@@ -34,7 +34,7 @@
 
 //-------------------------------------------------------------------------
 
-bool loadPng(const char *file, IMAGE_T *image);
+bool loadPng(const char *file, const RGB8_T *background, IMAGE_T *image);
 
 //-------------------------------------------------------------------------
 

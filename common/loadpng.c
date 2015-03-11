@@ -35,6 +35,7 @@
 bool
 loadPng(
     const char *file,
+    const RGB8_T *background,
     IMAGE_T *image)
 {
     FILE *fpin = fopen(file, "rb");
@@ -85,7 +86,14 @@ loadPng(
 
     //---------------------------------------------------------------------
 
-    void *buffer = malloc(width * height * 3);
+    png_uint_32 bytesPerPixel = 3;
+
+    if (colour_type & PNG_COLOR_MASK_ALPHA)
+    {
+        bytesPerPixel = 4;
+    }
+
+    void *buffer = malloc(width * height * bytesPerPixel);
 
     //---------------------------------------------------------------------
 
@@ -126,29 +134,6 @@ loadPng(
         colour_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     {
         png_set_gray_to_rgb(png_ptr);
-    }
-
-    //---------------------------------------------------------------------
-
-    png_color_16 *image_background = NULL;
-
-    if (png_get_bKGD(png_ptr, info_ptr, &image_background))
-    {
-        png_set_background(png_ptr,
-                           image_background,
-                           PNG_BACKGROUND_GAMMA_FILE,
-                           1,
-                           1.0);
-    }
-    else
-    {
-        png_color_16 background = { 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF };
-
-        png_set_background(png_ptr,
-                           &background,
-                           PNG_BACKGROUND_GAMMA_SCREEN,
-                           0,
-                           1.0);
     }
 
     //---------------------------------------------------------------------
@@ -194,9 +179,15 @@ loadPng(
         png_uint_32 i = 0;
         for (i = 0 ; i < width ; i++)
         {
-            uint8_t *pixel = buffer + (i * 3) + (j * row_bytes);
+            uint8_t *pixel = buffer + (i * bytesPerPixel) + (j * row_bytes);
 
             RGB8_T rgb = { pixel[0], pixel[1], pixel[2] };
+
+            if (colour_type & PNG_COLOR_MASK_ALPHA)
+            {
+                blendRGB(pixel[3], &rgb, background, &rgb);
+            }
+
             setPixelRGB(image, i, j, &rgb);        
         }
     }
