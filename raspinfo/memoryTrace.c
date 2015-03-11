@@ -51,14 +51,14 @@ typedef struct
 //-------------------------------------------------------------------------
 
 static void
-readMemoryStats(
+getMemoryStats(
     MEMORY_STATS_T *memoryStats)
 {
     FILE *fp = fopen("/proc/meminfo", "r");
 
     if (fp == NULL)
     {
-        perror("unable to open /proc/stat");
+        perror("unable to open /proc/meminfo");
         exit(EXIT_FAILURE);
     }
 
@@ -264,7 +264,7 @@ graphMemoryUsage(
     MEMORY_TRACE_T *trace)
 {
     MEMORY_STATS_T memoryStats = { 0, 0, 0, 0 };
-    readMemoryStats(&memoryStats);
+    getMemoryStats(&memoryStats);
 
     int16_t height = trace->traceHeight;
 

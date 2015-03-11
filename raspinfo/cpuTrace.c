@@ -42,7 +42,7 @@
 //-------------------------------------------------------------------------
 
 static void
-readCpuStats(
+getCpuStats(
     CPU_STATS_T *cpuStats)
 {
     FILE *fp = fopen("/proc/stat", "r");
@@ -229,7 +229,7 @@ initCpuTrace(
 
     //---------------------------------------------------------------------
 
-    readCpuStats(&(trace->currentStats));
+    getCpuStats(&(trace->currentStats));
 
     //---------------------------------------------------------------------
 
@@ -266,7 +266,7 @@ graphCpuUsage(
            &(trace->currentStats),
            sizeof(trace->previousStats));
 
-    readCpuStats(&(trace->currentStats));
+    getCpuStats(&(trace->currentStats));
 
     diffCpuStats(&(trace->currentStats),
                  &(trace->previousStats),
