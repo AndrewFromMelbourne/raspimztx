@@ -663,7 +663,7 @@ main(
             putImageLcd(&lcd, xOffset, yOffset, &image);
         }
 
-        ++ frame;
+        ++frame;
 
         //-----------------------------------------------------------------
 
