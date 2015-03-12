@@ -49,7 +49,7 @@
 #include <sys/time.h>
 
 #include "lcd.h"
-#include "nearestNeighbour.h"
+#include "resizeDispmanX.h"
 #include "syslogUtilities.h"
 
 //-------------------------------------------------------------------------
@@ -308,19 +308,19 @@ main(
                    (height != vinfo.yres) ||
                    (pitch != finfo.line_length));
 
-    NEAREST_NEIGHBOUR_T nn;
+    RESIZE_DISPMANX_T rd;
 
     if (resize)
     {
-        initNearestNeighbour(&nn,
-                             width,
-                             height,
-                             vinfo.xres,
-                             vinfo.yres,
-                             true);
+        initResizeDispmanX(&rd,
+                           width,
+                           height,
+                           vinfo.xres,
+                           vinfo.yres,
+                           true);
 
-        width = nn.destinationWidth;
-        height = nn.destinationHeight;
+        width = rd.destinationWidth;
+        height = rd.destinationHeight;
         pitch = width * sizeof(uint16_t);
 
         xOffset = (lcd.width - width) / 2;
@@ -353,11 +353,11 @@ main(
 
         if (resize)
         {
-            resizeNearestNeighbour(&nn,
-                                   fbcopy,
-                                   pitch,
-                                   fbp,
-                                   finfo.line_length);
+            resizeDispmanX(&rd,
+                           fbcopy,
+                           pitch,
+                           fbp,
+                           finfo.line_length);
         }
         else
         {
@@ -371,7 +371,7 @@ main(
                      yOffset,
                      width,
                      height,
-                     width * sizeof(uint16_t),
+                     pitch,
                      fbcopy);
 
         //-----------------------------------------------------------------
@@ -387,6 +387,10 @@ main(
             }
         }
     }
+
+    //--------------------------------------------------------------------
+
+	destroyResizeDispmanX(&rd);
 
     //--------------------------------------------------------------------
 
